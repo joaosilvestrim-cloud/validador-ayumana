@@ -3,7 +3,8 @@ import Link from "next/link";
 export default function Home() {
   return (
     <main className="container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-      <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '4rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <img src="/logo.png" alt="Ayumana Logo" style={{ height: '80px', marginBottom: '2rem' }} />
         <h1 className="title">Plataforma de Validação</h1>
         <p className="subtitle">
           Bem-vindo ao portal de testes da nossa plataforma. Sua colaboração é fundamental para garantirmos a melhor experiência.

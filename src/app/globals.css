@@ -1,15 +1,16 @@
 :root {
-  --background: #0f1115;
-  --surface: #1a1d24;
-  --surface-hover: #262a33;
-  --primary: #6366f1;
-  --primary-hover: #4f46e5;
-  --secondary: #ec4899;
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --border: rgba(255, 255, 255, 0.1);
+  /* Paleta Ayumana */
+  --background: #081111;
+  --surface: #0f1c1c;
+  --surface-hover: #152626;
+  --primary: #80AB3B; /* Logo Green */
+  --primary-hover: #6E962F; 
+  --secondary: #1A4B4B; /* Logo Dark Teal */
+  --text-main: #f0fdf4;
+  --text-muted: #8ba8a8;
+  --border: rgba(128, 171, 59, 0.15);
   
-  --success: #10b981;
+  --success: #80AB3B;
   --danger: #ef4444;
   --warning: #f59e0b;
 
@@ -99,7 +100,7 @@ button {
 
 .btn-primary {
   background-color: var(--primary);
-  color: white;
+  color: #081111; /* Dark text for the light green button */
 }
 
 .btn-primary:hover {
