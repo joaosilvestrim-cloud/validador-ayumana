@@ -51,7 +51,7 @@ export function TaskCard({ task, onStatusChange, isFocused = false }: TaskCardPr
 
     if (uploadError) {
       console.error(uploadError);
-      alert("Erro no upload: Você já criou o bucket 'evidencias' e deixou ele Público no Supabase?");
+      alert(`Erro no Supabase: ${uploadError.message}. \n\nDica: Se estiver dando erro de 'Policy' ou 'RLS', vá no Supabase > Storage > Policies, e adicione uma política permitindo 'INSERT' para todos.`);
       setIsUploading(false);
       return;
     }
