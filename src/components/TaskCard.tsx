@@ -20,6 +20,7 @@ export function TaskCard({ task, onStatusChange, isFocused = false }: TaskCardPr
   const [evidenceUrl, setEvidenceUrl] = useState(task.evidence || '');
   const [isUploading, setIsUploading] = useState(false);
   const [draftStatus, setDraftStatus] = useState<TaskStatus | null>(null);
+  const [isAddingEvidence, setIsAddingEvidence] = useState(false);
 
   // Deriva o status visual (se estivermos draftando um erro, mostramos como falha localmente, mas não fechamos o card)
   const displayStatus = draftStatus || task.status;
@@ -178,7 +179,6 @@ export function TaskCard({ task, onStatusChange, isFocused = false }: TaskCardPr
             placeholder="Ex: O botão não ficou clicável após preencher os dados..."
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            onBlur={() => handleStatus(task.status)}
             style={{ backgroundColor: 'var(--surface)' }}
           ></textarea>
 
