@@ -47,8 +47,8 @@ export function BoardPath({ totalCount, completedCount, avatarIcon }: BoardPathP
                 
                 const baseColor = tileColors[nodeIndex % tileColors.length];
                 
-                let bgColor = baseColor;
-                let color = '#fff';
+                const bgColor = baseColor;
+                const color = '#fff';
                 let scale = 1;
                 let opacity = 1;
 
