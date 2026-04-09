@@ -4,16 +4,17 @@ import React, { useEffect, useState } from 'react';
 interface BoardPathProps {
   totalCount: number;
   completedCount: number;
+  avatarIcon: string;
 }
 
-export function BoardPath({ totalCount, completedCount }: BoardPathProps) {
+export function BoardPath({ totalCount, completedCount, avatarIcon }: BoardPathProps) {
   const nodes = Array.from({ length: totalCount }, (_, i) => i);
   const currentIndex = completedCount < totalCount ? completedCount : totalCount - 1;
 
-  const [cols, setCols] = useState(6);
+  const [cols, setCols] = useState(3);
   
   useEffect(() => {
-    const handleResize = () => setCols(window.innerWidth < 768 ? 4 : 6);
+    const handleResize = () => setCols(window.innerWidth < 768 ? 4 : 3);
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -28,9 +29,9 @@ export function BoardPath({ totalCount, completedCount }: BoardPathProps) {
   const tileColors = ['#F472B6', '#FBBF24', '#38BDF8', '#FB923C', '#C084FC', '#A3E635'];
 
   return (
-    <div style={{ padding: '2rem 1rem', marginBottom: '3rem', backgroundColor: 'var(--surface)', borderRadius: 'var(--radius-lg)', border: '2px solid var(--border)', overflow: 'hidden', position: 'relative' }}>
+    <div style={{ padding: '2rem 1rem', flex: '0 0 350px', backgroundColor: 'var(--surface)', borderRadius: 'var(--radius-lg)', border: '2px solid var(--border)', overflow: 'hidden', position: 'relative' }}>
       <h3 style={{ marginBottom: '2rem', textAlign: 'center', color: 'var(--secondary)', fontSize: '1.25rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '2px' }}>
-        🚀 Tabuleiro de Testes
+        🚀 Tabuleiro
       </h3>
       
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', width: '100%', position: 'relative', zIndex: 5 }}>
@@ -80,7 +81,7 @@ export function BoardPath({ totalCount, completedCount }: BoardPathProps) {
                       }}
                       title={`Tarefa ${nodeIndex + 1}`}
                     >
-                      {isCurrent ? <span style={{ fontSize: '20px', animation: 'bounce 1s infinite' }}>🛸</span> : (nodeIndex + 1)}
+                      {isCurrent ? <span style={{ fontSize: '24px', animation: 'bounce 1s infinite' }}>{avatarIcon}</span> : (nodeIndex + 1)}
                       
                       {/* Checkmark overlay for passed */}
                       {(isPassed || isCompletedBoard) && (

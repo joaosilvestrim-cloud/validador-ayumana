@@ -115,10 +115,15 @@ export default function Checklist({ initialTasks, profileName }: ChecklistProps)
         <p className="subtitle">Olá <strong>{volunteerName}</strong>! Avance no tabuleiro seguindo as missões.</p>
       </div>
 
-      <BoardPath totalCount={totalCount} completedCount={completedCount} />
+      <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+        <BoardPath 
+          totalCount={totalCount} 
+          completedCount={completedCount} 
+          avatarIcon={profileName === 'Psicólogo' ? '👩‍⚕️' : '🧑'} 
+        />
 
-      <div className="card" style={{ padding: '2rem 2rem 3rem 2rem', marginBottom: '3rem' }}>
-        <ProgressBar total={totalCount} completed={completedCount} />
+        <div className="card" style={{ padding: '2rem', flex: '1 1 500px' }}>
+          <ProgressBar total={totalCount} completed={completedCount} />
         
         {targetTaskIndex !== -1 && (
           <div style={{ margin: '2rem 0', padding: '1rem', backgroundColor: 'rgba(16, 185, 129, 0.1)', borderRadius: 'var(--radius-md)', border: '1px solid var(--success)', textAlign: 'center' }}>
@@ -137,6 +142,7 @@ export default function Checklist({ initialTasks, profileName }: ChecklistProps)
             />
           ))}
         </div>
+      </div>
       </div>
       
       {completedCount === totalCount && totalCount > 0 && (

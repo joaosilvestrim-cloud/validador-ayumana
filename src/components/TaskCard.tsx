@@ -36,7 +36,7 @@ export function TaskCard({ task, onStatusChange, isFocused = false }: TaskCardPr
     if (!file) return;
 
     if (!supabase) {
-      alert("Banco Supabase não configurado. Não é possível enviar arquivos.");
+      alert("⚠️ As chaves do banco não foram injetadas! Você precisa ir na Vercel > Settings > Environment Variables, conferir se as variáveis NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY estão certinhas (sem o sinal de = no nome), e DEPOIS apertar nos 3 pontinhos (...) do último deploy em 'Deployments' e dar Redeploy!");
       return;
     }
 
