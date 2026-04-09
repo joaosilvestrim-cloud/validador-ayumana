@@ -1,14 +1,14 @@
 :root {
-  /* Paleta Ayumana */
-  --background: #081111;
-  --surface: #0f1c1c;
-  --surface-hover: #152626;
+  /* Paleta Ayumana Light */
+  --background: #f8fafc;
+  --surface: #ffffff;
+  --surface-hover: #f1f5f9;
   --primary: #80AB3B; /* Logo Green */
   --primary-hover: #6E962F; 
   --secondary: #1A4B4B; /* Logo Dark Teal */
-  --text-main: #f0fdf4;
-  --text-muted: #8ba8a8;
-  --border: rgba(128, 171, 59, 0.15);
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
   
   --success: #80AB3B;
   --danger: #ef4444;
@@ -100,7 +100,7 @@ button {
 
 .btn-primary {
   background-color: var(--primary);
-  color: #081111; /* Dark text for the light green button */
+  color: #ffffff; /* White text looks better in Light Mode since primary is vivid green */
 }
 
 .btn-primary:hover {
@@ -216,14 +216,14 @@ button {
   transition: width 0.5s ease-in-out;
 }
 
-/* Glassmorphism nav */
+/* Glassmorphism nav - Light */
 .navbar {
   position: sticky;
   top: 0;
   z-index: 100;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  background: rgba(15, 17, 21, 0.7);
+  background: rgba(255, 255, 255, 0.85);
   border-bottom: 1px solid var(--border);
   padding: 1rem 2rem;
   display: flex;

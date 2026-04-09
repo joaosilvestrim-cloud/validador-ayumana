@@ -1,6 +1,12 @@
 "use client";
 import React, { useState } from 'react';
+import { createClient } from '@supabase/supabase-js';
 import { ChecklistItem, TaskStatus } from '../data/mockChecklists';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+// Singleton client
+const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 interface TaskCardProps {
   task: ChecklistItem;
@@ -13,9 +19,41 @@ export function TaskCard({ task, onStatusChange, isFocused = false }: TaskCardPr
   const [showTutorial, setShowTutorial] = useState(isFocused);
   const [comment, setComment] = useState(task.comment || '');
   const [evidenceUrl, setEvidenceUrl] = useState(task.evidence || '');
+  const [isUploading, setIsUploading] = useState(false);
 
-  const handleStatus = (status: TaskStatus) => {
-    onStatusChange(task.id, status, evidenceUrl, comment);
+  const handleStatus = (status: TaskStatus, urlOverride?: string) => {
+    onStatusChange(task.id, status, urlOverride ?? evidenceUrl, comment);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!supabase) {
+      alert("Banco Supabase não configurado. Não é possível enviar arquivos.");
+      return;
+    }
+
+    setIsUploading(true);
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${task.id}_${Date.now()}.${fileExt}`;
+    const filePath = `uploads/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('evidencias')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      console.error(uploadError);
+      alert("Erro no upload: Você já criou o bucket 'evidencias' e deixou ele Público no Supabase?");
+      setIsUploading(false);
+      return;
+    }
+
+    const { data } = supabase.storage.from('evidencias').getPublicUrl(filePath);
+    setEvidenceUrl(data.publicUrl);
+    handleStatus(task.status, data.publicUrl); // Save the URL immediately locally
+    setIsUploading(false);
   };
 
   const getBadgeClass = (status: TaskStatus) => {
@@ -129,17 +167,33 @@ export function TaskCard({ task, onStatusChange, isFocused = false }: TaskCardPr
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             onBlur={() => handleStatus(task.status)}
+            style={{ backgroundColor: 'var(--surface)' }}
           ></textarea>
 
-          <label style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '1rem', display: 'block' }}>Link da Evidência (URL de Imagem / Vídeo Loom)</label>
-          <input 
-            type="text" 
-            className="input-field" 
-            placeholder="https://..."
-            value={evidenceUrl}
-            onChange={(e) => setEvidenceUrl(e.target.value)}
-            onBlur={() => handleStatus(task.status)}
-          />
+          <label style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '1rem', display: 'block' }}>Anexar Captura de Tela (Print)</label>
+          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+            <label className="btn btn-primary" style={{ cursor: 'pointer', padding: '0.5rem 1rem', fontSize: '0.875rem', margin: 0, opacity: isUploading ? 0.7 : 1 }}>
+              {isUploading ? 'Enviando...' : '📎 Escolher Imagem'}
+              <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileUpload} disabled={isUploading} />
+            </label>
+            <input 
+              type="text" 
+              className="input-field" 
+              placeholder="Ou cole a URL..."
+              value={evidenceUrl}
+              onChange={(e) => setEvidenceUrl(e.target.value)}
+              onBlur={() => handleStatus(task.status)}
+              style={{ marginTop: 0, backgroundColor: 'var(--surface)' }}
+            />
+          </div>
+          
+          {evidenceUrl && (
+            <div style={{ marginTop: '0.5rem' }}>
+              <a href={evidenceUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--primary)', fontSize: '0.875rem', textDecoration: 'underline' }}>
+                Ver Imagem Anexada
+              </a>
+            </div>
+          )}
         </div>
       )}
     </div>

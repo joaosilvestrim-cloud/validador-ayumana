@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { TaskCard } from './TaskCard';
 import { ProgressBar } from './ProgressBar';
+import { BoardPath } from './BoardPath';
 import { ChecklistItem, TaskStatus } from '../data/mockChecklists';
 
 interface ChecklistProps {
@@ -111,8 +112,10 @@ export default function Checklist({ initialTasks, profileName }: ChecklistProps)
     <div className="container">
       <div style={{ marginBottom: '2rem' }}>
         <h1 className="title">Guia de Validação: {profileName}</h1>
-        <p className="subtitle">Olá <strong>{volunteerName}</strong>! Siga os passos e registre se deu tudo certo.</p>
+        <p className="subtitle">Olá <strong>{volunteerName}</strong>! Avance no tabuleiro seguindo as missões.</p>
       </div>
+
+      <BoardPath totalCount={totalCount} completedCount={completedCount} />
 
       <div className="card" style={{ padding: '2rem 2rem 3rem 2rem', marginBottom: '3rem' }}>
         <ProgressBar total={totalCount} completed={completedCount} />
