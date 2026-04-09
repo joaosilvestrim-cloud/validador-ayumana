@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface BoardPathProps {
   totalCount: number;
@@ -8,69 +8,101 @@ interface BoardPathProps {
 
 export function BoardPath({ totalCount, completedCount }: BoardPathProps) {
   const nodes = Array.from({ length: totalCount }, (_, i) => i);
-  // The person is exactly at `completedCount` index (if total is 18 and completed is 0, they are at 0).
   const currentIndex = completedCount < totalCount ? completedCount : totalCount - 1;
 
+  const [cols, setCols] = useState(6);
+  
+  useEffect(() => {
+    const handleResize = () => setCols(window.innerWidth < 768 ? 4 : 6);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const chunks = [];
+  for (let i = 0; i < totalCount; i += cols) {
+    chunks.push(nodes.slice(i, i + cols));
+  }
+
+  // Playful colors from the reference image
+  const tileColors = ['#F472B6', '#FBBF24', '#38BDF8', '#FB923C', '#C084FC', '#A3E635'];
+
   return (
-    <div style={{ padding: '1rem', marginBottom: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: 'var(--surface)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }}>
-      <h3 style={{ marginBottom: '1.5rem', color: 'var(--secondary)', fontSize: '1.1rem' }}>Sua Trilha de Conquistas</h3>
+    <div style={{ padding: '2rem 1rem', marginBottom: '3rem', backgroundColor: 'var(--surface)', borderRadius: 'var(--radius-lg)', border: '2px solid var(--border)', overflow: 'hidden', position: 'relative' }}>
+      <h3 style={{ marginBottom: '2rem', textAlign: 'center', color: 'var(--secondary)', fontSize: '1.25rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '2px' }}>
+        🚀 Tabuleiro de Testes
+      </h3>
       
-      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '0.25rem', maxWidth: '100%' }}>
-        {nodes.map((nodeIndex) => {
-          const isPassed = nodeIndex < completedCount;
-          const isCurrent = nodeIndex === currentIndex && completedCount < totalCount;
-          const isCompletedBoard = completedCount === totalCount;
-
-          let color = 'var(--border)';
-          let bgColor = 'var(--surface)';
-          let scale = 1;
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', width: '100%', position: 'relative', zIndex: 5 }}>
+        {chunks.map((chunk, rowIndex) => {
+          const isReverse = rowIndex % 2 === 1;
           
-          if (isPassed || isCompletedBoard) {
-            bgColor = 'var(--success)';
-            color = 'var(--success)';
-          } else if (isCurrent) {
-            bgColor = 'var(--surface)';
-            color = 'var(--primary)';
-            scale = 1.3;
-          }
-
           return (
-            <React.Fragment key={nodeIndex}>
-              <div 
-                style={{ 
-                  width: '36px', 
-                  height: '36px', 
-                  borderRadius: '50%', 
-                  border: `3px solid ${color}`,
-                  backgroundColor: bgColor,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transform: `scale(${scale})`,
-                  transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                  boxShadow: isCurrent ? '0 0 15px rgba(128, 171, 59, 0.6)' : 'none',
-                  zIndex: isCurrent ? 10 : 1,
-                  margin: '0.25rem'
-                }}
-                title={`Tarefa ${nodeIndex + 1}`}
-              >
-                {(isPassed || isCompletedBoard) && <span style={{ color: 'white', fontSize: '14px', fontWeight: 'bold' }}>✓</span>}
-                {isCurrent && <span style={{ fontSize: '16px' }}>⭐</span>}
-              </div>
-              
-              {nodeIndex < totalCount - 1 && (
-                <div style={{ 
-                  width: '12px', 
-                  height: '4px', 
-                  backgroundColor: isPassed ? 'var(--success)' : 'var(--border)',
-                  transition: 'background-color 0.4s ease',
-                  borderRadius: '2px'
-                }} />
-              )}
-            </React.Fragment>
+            <div key={rowIndex} style={{ display: 'flex', flexDirection: isReverse ? 'row-reverse' : 'row', gap: '0.5rem' }}>
+              {chunk.map((nodeIndex) => {
+                const isPassed = nodeIndex < completedCount;
+                const isCurrent = nodeIndex === currentIndex && completedCount < totalCount;
+                const isCompletedBoard = completedCount === totalCount;
+                
+                const baseColor = tileColors[nodeIndex % tileColors.length];
+                
+                let bgColor = baseColor;
+                let color = '#fff';
+                let scale = 1;
+                let opacity = 1;
+
+                if (isCurrent) {
+                  scale = 1.3;
+                } else if (!isPassed && !isCompletedBoard) {
+                  // Future nodes slightly faded
+                  opacity = 0.5;
+                }
+
+                return (
+                  <div key={nodeIndex} style={{ display: 'flex', alignItems: 'center' }}>
+                    <div 
+                      style={{ 
+                        width: '42px', 
+                        height: '42px', 
+                        borderRadius: '12px', // Slightly squared like board tiles
+                        backgroundColor: bgColor,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transform: `scale(${scale})`,
+                        transition: 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                        boxShadow: isCurrent ? `0 0 20px ${baseColor}, 0 0 0 4px #000` : '0 4px 6px rgba(0,0,0,0.1)',
+                        zIndex: isCurrent ? 10 : 1,
+                        opacity,
+                        fontWeight: 'bold',
+                        color: '#000',
+                        fontSize: '1rem'
+                      }}
+                      title={`Tarefa ${nodeIndex + 1}`}
+                    >
+                      {isCurrent ? <span style={{ fontSize: '20px', animation: 'bounce 1s infinite' }}>🛸</span> : (nodeIndex + 1)}
+                      
+                      {/* Checkmark overlay for passed */}
+                      {(isPassed || isCompletedBoard) && (
+                        <div style={{ position: 'absolute', top: -5, right: -5, background: 'var(--success)', color: 'white', borderRadius: '50%', width: '16px', height: '16px', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          ✓
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           );
         })}
       </div>
+
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-5px); }
+        }
+      `}} />
     </div>
   );
 }

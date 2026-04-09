@@ -15,14 +15,19 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task, onStatusChange, isFocused = false }: TaskCardProps) {
-  const [isAddingEvidence, setIsAddingEvidence] = useState(false);
   const [showTutorial, setShowTutorial] = useState(isFocused);
   const [comment, setComment] = useState(task.comment || '');
   const [evidenceUrl, setEvidenceUrl] = useState(task.evidence || '');
   const [isUploading, setIsUploading] = useState(false);
+  const [draftStatus, setDraftStatus] = useState<TaskStatus | null>(null);
 
-  const handleStatus = (status: TaskStatus, urlOverride?: string) => {
-    onStatusChange(task.id, status, urlOverride ?? evidenceUrl, comment);
+  // Deriva o status visual (se estivermos draftando um erro, mostramos como falha localmente, mas não fechamos o card)
+  const displayStatus = draftStatus || task.status;
+
+  const handleStatusAndAdvance = (finalStatus: TaskStatus, urlOverride?: string) => {
+    onStatusChange(task.id, finalStatus, urlOverride ?? evidenceUrl, comment);
+    setDraftStatus(null);
+    setIsAddingEvidence(false);
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,7 +57,7 @@ export function TaskCard({ task, onStatusChange, isFocused = false }: TaskCardPr
 
     const { data } = supabase.storage.from('evidencias').getPublicUrl(filePath);
     setEvidenceUrl(data.publicUrl);
-    handleStatus(task.status, data.publicUrl); // Save the URL immediately locally
+    // Don't auto-advance on upload, just save locally
     setIsUploading(false);
   };
 
@@ -77,7 +82,8 @@ export function TaskCard({ task, onStatusChange, isFocused = false }: TaskCardPr
     return null;
   }
 
-  const isCompleted = task.status !== 'pending';
+  // We are 'completed' computationally IF the real task was published, AND we are not draft-editing it
+  const isCompleted = task.status !== 'pending' && !draftStatus;
 
   return (
     <div 
@@ -100,13 +106,13 @@ export function TaskCard({ task, onStatusChange, isFocused = false }: TaskCardPr
           <h3 className="task-title" style={{ color: isFocused ? 'var(--text-main)' : 'var(--text-muted)' }}>{task.title}</h3>
           <p className="task-desc" style={{ display: isCompleted && !isFocused ? 'none' : 'block' }}>{task.description}</p>
         </div>
-        <div className={getBadgeClass(task.status)}>
-          {getStatusText(task.status)}
+        <div className={getBadgeClass(displayStatus)}>
+          {getStatusText(displayStatus)}
         </div>
       </div>
 
       {/* Tutorial Area */}
-      {task.tutorialSteps && task.status === 'pending' && (!isCompleted || isFocused) && (
+      {task.tutorialSteps && task.status === 'pending' && !isCompleted && (
         <div style={{ marginTop: '1rem' }}>
           <button 
             onClick={() => setShowTutorial(!showTutorial)}
@@ -132,16 +138,22 @@ export function TaskCard({ task, onStatusChange, isFocused = false }: TaskCardPr
       <div className="task-actions" style={{ display: isCompleted && !isFocused ? 'none' : 'flex' }}>
         <button 
           className="btn btn-outline" 
-          style={{ width: '100%', borderColor: 'var(--success)', color: task.status === 'passed' ? 'var(--success)' : 'inherit', backgroundColor: task.status === 'passed' ? 'rgba(16, 185, 129, 0.1)' : 'transparent' }} 
-          onClick={() => handleStatus('passed')}
+          style={{ width: '100%', borderColor: 'var(--success)', color: displayStatus === 'passed' ? 'var(--success)' : 'inherit', backgroundColor: displayStatus === 'passed' ? 'var(--surface-hover)' : 'transparent' }} 
+          onClick={() => {
+            if (isAddingEvidence) {
+               setDraftStatus('passed');
+            } else {
+               handleStatusAndAdvance('passed');
+            }
+          }}
         >
           ✓ Deu Certo
         </button>
         <button 
           className="btn btn-outline" 
-          style={{ width: '100%', borderColor: 'var(--danger)', color: task.status === 'failed' ? 'var(--danger)' : 'inherit', backgroundColor: task.status === 'failed' ? 'rgba(239, 68, 68, 0.1)' : 'transparent' }} 
+          style={{ width: '100%', borderColor: 'var(--danger)', color: displayStatus === 'failed' ? 'var(--danger)' : 'inherit', backgroundColor: displayStatus === 'failed' ? 'rgba(239, 68, 68, 0.05)' : 'transparent' }} 
           onClick={() => {
-            handleStatus('failed');
+            setDraftStatus('failed');
             setIsAddingEvidence(true);
           }}
         >
@@ -182,7 +194,6 @@ export function TaskCard({ task, onStatusChange, isFocused = false }: TaskCardPr
               placeholder="Ou cole a URL..."
               value={evidenceUrl}
               onChange={(e) => setEvidenceUrl(e.target.value)}
-              onBlur={() => handleStatus(task.status)}
               style={{ marginTop: 0, backgroundColor: 'var(--surface)' }}
             />
           </div>
@@ -194,6 +205,15 @@ export function TaskCard({ task, onStatusChange, isFocused = false }: TaskCardPr
               </a>
             </div>
           )}
+
+          <div style={{ marginTop: '1.5rem', textAlign: 'right' }}>
+            <button 
+              className="btn btn-primary" 
+              onClick={() => handleStatusAndAdvance(displayStatus === 'pending' ? 'failed' : displayStatus)}
+            >
+              Confirmar e Avançar 🎯
+            </button>
+          </div>
         </div>
       )}
     </div>
