@@ -72,7 +72,7 @@ export default function AdminDashboard() {
   const buggyTasksMap: Record<string, number> = {};
 
   reports.forEach(report => {
-    const results = report.checklist_results || [];
+    const results = Array.isArray(report.checklist_results) ? report.checklist_results : [];
     const failedTasks = results.filter((r: any) => r.status === 'failed');
     
     totalBugs += failedTasks.length;
@@ -105,31 +105,33 @@ export default function AdminDashboard() {
         <Link href="/" className="btn btn-outline" style={{ fontSize: '0.85rem' }}>← Voltar</Link>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
-        <div className="card" style={{ padding: '1.5rem', borderTop: '4px solid #3B82F6', textAlign: 'center' }}>
-          <h3 style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Entregas Totais</h3>
-          <p style={{ fontSize: '2.5rem', fontWeight: 800, color: '#3B82F6', margin: '0.5rem 0' }}>{totalReports}</p>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Cobrindo Pacientes e Psicos</p>
-        </div>
-        
-        <div className="card" style={{ padding: '1.5rem', borderTop: '4px solid var(--danger)', textAlign: 'center' }}>
-          <h3 style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Bugs Rastreados 🐞</h3>
-          <p style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--danger)', margin: '0.5rem 0' }}>{totalBugs}</p>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Mapeados com evidências</p>
-        </div>
+      {reports.length > 0 && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
+          <div className="card" style={{ padding: '1.5rem', borderTop: '4px solid #3B82F6', textAlign: 'center' }}>
+            <h3 style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Entregas Totais</h3>
+            <p style={{ fontSize: '2.5rem', fontWeight: 800, color: '#3B82F6', margin: '0.5rem 0' }}>{totalReports}</p>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Cobrindo Pacientes e Psicos</p>
+          </div>
+          
+          <div className="card" style={{ padding: '1.5rem', borderTop: '4px solid var(--danger)', textAlign: 'center' }}>
+            <h3 style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Bugs Rastreados 🐞</h3>
+            <p style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--danger)', margin: '0.5rem 0' }}>{totalBugs}</p>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Mapeados com evidências</p>
+          </div>
 
-        <div className="card" style={{ padding: '1.5rem', borderTop: '4px solid #EAB308', textAlign: 'center' }}>
-          <h3 style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Gargalo Crítico 🚨</h3>
-          <p style={{ fontSize: '1.8rem', fontWeight: 800, color: '#EAB308', margin: '0.5rem 0', wordBreak: 'break-word', lineHeight: 1.1 }}>{topBugTask === 'N/A' ? 'Nenhuma falha' : topBugTask}</p>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>Falhou {topBugCount} vezes</p>
-        </div>
+          <div className="card" style={{ padding: '1.5rem', borderTop: '4px solid #EAB308', textAlign: 'center' }}>
+            <h3 style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Gargalo Crítico 🚨</h3>
+            <p style={{ fontSize: '1.8rem', fontWeight: 800, color: '#EAB308', margin: '0.5rem 0', wordBreak: 'break-word', lineHeight: 1.1 }}>{topBugTask === 'N/A' ? 'Nenhuma falha' : topBugTask}</p>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>Falhou {topBugCount} vezes</p>
+          </div>
 
-        <div className="card" style={{ padding: '1.5rem', borderTop: '4px solid var(--success)', textAlign: 'center' }}>
-          <h3 style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Jornadas sem Erros ✨</h3>
-          <p style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--success)', margin: '0.5rem 0' }}>{perfectSessionRate}%</p>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>De aprovação orgânica</p>
+          <div className="card" style={{ padding: '1.5rem', borderTop: '4px solid var(--success)', textAlign: 'center' }}>
+            <h3 style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Jornadas sem Erros ✨</h3>
+            <p style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--success)', margin: '0.5rem 0' }}>{perfectSessionRate}%</p>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>De aprovação orgânica</p>
+          </div>
         </div>
-      </div>
+      )}
 
       {reports.length === 0 ? (
         <div className="card" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
@@ -139,7 +141,7 @@ export default function AdminDashboard() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           {reports.map((report) => {
             const date = new Date(report.created_at).toLocaleString('pt-BR');
-            const results = report.checklist_results || [];
+            const results = Array.isArray(report.checklist_results) ? report.checklist_results : [];
             const failedTasks = results.filter((r: any) => r.status === 'failed');
 
             return (
